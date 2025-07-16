@@ -135,3 +135,66 @@ The log entry appeared with the exact credentials captured by SET.
 - Simulated log forwarding from SET using curl and the HEC token.
 - Verified the phishing credentials were successfully received by Splunk.
 
+## 📊 Phase 3: Visualizing Phishing Logs in Splunk
+
+In this phase, I visualized the captured phishing credentials using Splunk dashboards. The goal was to understand how logs from a phishing campaign can be transformed into searchable, visual data for SOC analysts.
+
+---
+
+### 📥 Step 1: Send Multiple Fake Credentials into Splunk
+
+To simulate real phishing traffic, I sent multiple login attempts using `curl` with different fake usernames, passwords, and IPs. Here's an example:
+
+```bash
+curl -k https://localhost:8088/services/collector/event \
+ -H "Authorization: Splunk 8d71c154-80ef-47ff-b2e8-b9b6cbe1c386" \
+ -d '{"event": {"username": "user20", "password": "Pass20", "ip": "192.168.117.20", "browser": "Chrome", "login_page": "testphp.vulnweb.com/login.php"}, "sourcetype": "phishing_web_log"}'
+```
+
+I repeated this with different values to generate multiple events in Splunk.
+
+📸 **Screenshot 8**: Sending multiple simulated phishing credentials into Splunk  
+<img width="1038" height="798" alt="VirtualBox_Kali Linux_16_07_2025_02_58_05" src="https://github.com/user-attachments/assets/15d43187-5418-4ecd-8307-fa423b6f2509" />
+
+---
+
+### 🔍 Step 2: Search Logs Using SPL
+
+To view the phishing data, I used this SPL:
+
+```spl
+index=* sourcetype=phishing_web_log
+```
+
+This showed all the events with usernames, passwords, IPs, browsers, and the login page used.
+
+📸 **Screenshot 9**: Raw phishing event logs in Splunk  
+<img width="1920" height="909" alt="VirtualBox_Kali Linux_16_07_2025_02_59_48" src="https://github.com/user-attachments/assets/d1ea4e38-a426-4ce0-b467-3afa3ec17b59" />
+
+---
+
+### 📈 Step 3: Generate Visual Insights from the Data
+
+I built simple visualizations directly from the search bar using `stats` commands. Example:
+
+```spl
+index=* sourcetype=phishing_web_log
+| stats count by ip
+| sort -count
+```
+
+This returned a chart showing which IP address submitted the most phishing attempts.
+
+📸 **Screenshot 10**: IP distribution chart from phishing logs  
+<img width="1920" height="909" alt="VirtualBox_Kali Linux_16_07_2025_03_00_42" src="https://github.com/user-attachments/assets/3cf61381-5219-4fd7-8c65-6c45f514350b" />
+
+---
+
+### ✅ Phase Summary
+
+- Simulated a phishing campaign with 20+ fake login attempts.
+- Indexed data into Splunk using HEC with JSON events.
+- Visualized login patterns by IP, usernames, and browsers.
+- This phase showed how phishing data can be used for threat intel and user behavior analysis.
+
+
