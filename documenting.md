@@ -197,4 +197,63 @@ This returned a chart showing which IP address submitted the most phishing attem
 - Visualized login patterns by IP, usernames, and browsers.
 - This phase showed how phishing data can be used for threat intel and user behavior analysis.
 
+## 🚨 Phase 4: Detect and Harden Against Phishing
+
+In this final phase, I moved from detection to response. I created a Splunk alert to catch phishing activity and then simulated defensive hardening by blocking the phishing server IP with `iptables`.
+
+---
+
+### 🔍 Step 1: Create a Splunk Alert
+
+To catch phishing attempts, I created a custom Splunk alert using this search:
+```spl
+index=main sourcetype=phishing_web_log "uname=" | table ip, username, _time
+```
+**Alert Settings:**
+- **Name**: `Phishing_Credential_Detection`
+- **Trigger**: When results > 0 within 5 minutes
+- **Action**: Log to Splunk (simulating a SOC alert)
+
+📸 **Screenshot 11**: Splunk alert configuration  
+<img width="1038" height="798" alt="VirtualBox_Kali Linux_16_07_2025_03_57_32" src="https://github.com/user-attachments/assets/81081e32-2e01-4518-91ae-d59e2a81ee14" />
+
+---
+### 🛡️ Step 2: Block the Phishing Server with iptables
+
+To simulate a response, I blocked the phishing site IP:
+
+```spl
+sudo iptables -A INPUT -s 192.168.117.4 -j DROP
+```
+Then I tested access from the same Kali system:
+
+```spl
+curl http://192.168.117.4
+```
+The request failed with a timeout error — proof that the IP was successfully blocked.
+
+📸 **Screenshot 12**: iptables rule applied  
+<img width="1038" height="798" alt="image" src="https://github.com/user-attachments/assets/eb8e740b-45d0-419d-a116-4c2e595e0c76" />
+
+---
+
+### ✅ Phase Summary
+
+- ✅ Created a Splunk alert to detect phishing credential submissions in logs.
+- ✅ Simulated hardening by blocking the attacker’s IP address.
+- ✅ Demonstrated detection and response workflow from a SOC analyst perspective.
+
+
+---
+
+## 🧠 Final Thoughts
+
+This lab helped me connect offensive and defensive concepts in one project — from simulating phishing attacks to detecting and responding like a SOC analyst. I learned how phishing campaigns are built using tools like SET, how to centralize logs with Splunk HEC, and how to write SPL queries for real-time visibility. I also simulated an actual response by blocking the attacker’s IP using `iptables`.
+
+This hands-on project sharpened my red teaming, blue teaming, and threat detection skills — all in one lab.
+
+
+
+Thanks for reading!
+
 
