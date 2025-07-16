@@ -1,0 +1,137 @@
+## 🎯 Phase 1: Phishing Page Setup with SET on Kali Linux
+
+In this phase, I used the Social-Engineer Toolkit (SET) to simulate a phishing attack. I cloned a real login page and captured credentials submitted by a victim.
+> 🧪 **Lab Goal**: Simulate phishing, capture credentials with SET, then forward the data to Splunk for detection and analysis.
+
+---
+
+### 🔧 Step 1: Stop Apache & Launch SET
+
+```bash
+sudo apt update
+sudo apt install apache2 -y     # Apache was already installed
+sudo service apache2 stop       # Stopped Apache to free up port 80
+sudo setoolkit
+```
+
+📸 **Screenshot 1**: SET interface launched successfully
+<img width="1278" height="798" alt="VirtualBox_Kali Linux_16_07_2025_00_16_01" src="https://github.com/user-attachments/assets/45c759b6-9d36-4a0d-8a57-a951ac6ac61f" />
+
+---
+
+### ⚙️ Step 2: Clone a Target Website in SET
+
+From the SET menu, I followed this path:
+
+- 1) Social-Engineering Attacks  
+- 2) Website Attack Vectors  
+- 3) Credential Harvester Attack Method  
+- 2) Site Cloner  
+- IP address: `192.168.117.4`  
+- URL to clone: `http://testphp.vulnweb.com/login.php`
+
+SET cloned the site and started listening on port 80.
+
+📸 **Screenshot 2**: Cloned page hosted locally
+<img width="1278" height="798" alt="VirtualBox_Kali Linux_16_07_2025_01_03_48" src="https://github.com/user-attachments/assets/229fce28-da98-4d39-878d-1e580741839b" />
+
+---
+
+### 🧪 Step 3: Test Victim Login to Capture Credentials
+
+I visited the fake site from another machine and submitted fake login credentials:
+
+- **Username**: `jmcoded`  
+- **Password**: `Passswordjmcoded109754`
+
+SET captured the POST request with the credentials:
+
+```
+[*] WE GOT A HIT!
+uname=jmcoded
+pass=Passswordjmcoded109754
+```
+
+📸 **Screenshot 3**: Victim login page  <img width="1920" height="1010" alt="image" src="https://github.com/user-attachments/assets/80422d58-6050-455d-a494-c8b978507b77" />
+
+📸 **Screenshot 4**: Captured credentials in SET <img width="1278" height="798" alt="VirtualBox_Kali Linux_16_07_2025_01_06_51" src="https://github.com/user-attachments/assets/8effd549-a31a-4036-8394-00894876aea8" />
+
+
+---
+
+### ✅ Phase Summary
+
+- Apache was stopped to allow SET to bind to port 80.
+- SET cloned a login page and captured user-submitted credentials.
+- This phase simulated a phishing attack in a safe, isolated lab.
+- 
+## 🧠 Phase 2: Sending Captured Phishing Credentials to Splunk (HEC)
+
+In this phase, I simulated how phishing logs (like stolen usernames and passwords) can be sent to a centralized log platform like Splunk using the HTTP Event Collector (HEC). This replicates what happens in real-world SOC pipelines.
+
+---
+
+### 🟢 Step 1: Start Splunk & Confirm HEC is Enabled
+
+I started my local Splunk instance on Kali using the terminal:
+
+```bash
+sudo /opt/splunk/bin/splunk start
+```
+
+Then I logged into Splunk via browser at:  
+**http://localhost:8000**
+
+Inside Splunk, I navigated to:
+
+- **Settings** → **Data Inputs** → **HTTP Event Collector**
+- Enabled HEC if it wasn’t on
+- Created a new token called `phishing-token` with index: `main`
+
+📸 **Screenshot 5**: HEC token interface on Splunk
+<img width="1278" height="798" alt="VirtualBox_Kali Linux_16_07_2025_01_42_16" src="https://github.com/user-attachments/assets/b05312b0-3fad-4582-8e78-0451b1e9ebf1" />
+
+---
+
+### 🟢 Step 2: Send the Phishing Data via cURL
+
+Now I simulated sending the stolen credentials from the phishing site (Phase 1) into Splunk using this `curl` command:
+
+```bash
+curl -k https://localhost:8088/services/collector/event \
+ -H "Authorization: Splunk 8d71c154-80ef-47ff-b2e8-b9b6cbe1c386" \
+ -d '{"event": "uname=jmcoded&pass=Passswordjmcoded109754", "sourcetype": "phishing_web_log"}'
+```
+
+If successful, I got a response like:
+
+```json
+{"text":"Success","code":0}
+```
+
+📸 **Screenshot 6**: Curl request showing success response from Splunk
+<img width="1278" height="798" alt="VirtualBox_Kali Linux_16_07_2025_01_43_44" src="https://github.com/user-attachments/assets/e72f483a-fc13-4a69-82b9-cf98c070ed8f" />
+
+---
+
+### 🟢 Step 3: Search the Logs in Splunk
+
+To verify the log made it into Splunk, I ran this SPL search:
+
+```spl
+index=* sourcetype=phishing_web_log
+```
+
+The log entry appeared with the exact credentials captured by SET.
+
+📸 **Screenshot 7**: Splunk search result showing captured phishing data
+<img width="1920" height="909" alt="VirtualBox_Kali Linux_16_07_2025_01_46_12" src="https://github.com/user-attachments/assets/925afdb7-5235-4596-a660-12978b202d4e" />
+
+---
+
+### ✅ Phase Summary
+
+- I started Splunk and confirmed HTTP Event Collector was active.
+- Simulated log forwarding from SET using curl and the HEC token.
+- Verified the phishing credentials were successfully received by Splunk.
+
