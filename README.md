@@ -24,7 +24,7 @@ Phishing is one of the most common attack vectors used in real-world breaches. I
 - Simulated a phishing campaign with SET
 - Cloned a real login page and hosted it locally
 - Captured victim credentials securely in a sandbox
-- Sent Apache logs to Splunk using HEC
+- Forwarded phishing credentials to Splunk using HEC for analysis
 - Created a Splunk detection query to flag suspicious POST requests
 
 ---
@@ -47,24 +47,10 @@ Phishing is one of the most common attack vectors used in real-world breaches. I
 | Collection       | Input Capture     | T1056.001 |
 | Defense Evasion  | Valid Accounts    | T1078     |
 
----
 
+
+---
 ## 📸 Screenshots
 
-_Add these if available:_
-- SET interface
-- Cloned login page
-- Splunk alert
+- Full walkthrough with screenshots 👉 [View full documentation here](https://github.com/jmcoded0/Phishing-Detection-Lab-with-Kali-Linux-Splunk/blob/main/documenting.md)
 
----
-
-## 🔗 Related Projects
-
-- [AWS S3 Breach Detection Lab](https://github.com/jmcoded0/AWS-S3-Data-Breach-Simulation-Incident-Response-Lab)
-- [Web App Pentesting & Vulnerability Lab](https://github.com/jmcoded0/Web-Application-Pentesting-Vulnerability-Management-Lab)
-
----
-
-## ✅ Summary
-
-This lab helped me understand how phishing works in practice and how defenders can build detection logic using Splunk and logs. It also improved my skills in network forensics and simulating real-world attacks in a safe lab environment.
